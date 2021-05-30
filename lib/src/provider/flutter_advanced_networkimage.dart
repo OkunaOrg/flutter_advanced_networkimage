@@ -125,13 +125,16 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
   ImageStream resolve(ImageConfiguration configuration) {
     assert(configuration != null);
     final ImageStream stream = ImageStream();
-    obtainKey(configuration).then<void>((AdvancedNetworkImage key) {
+    obtainKey(configuration).then<void>((AdvancedNetworkImage key) async {
       if (key.disableMemoryCache) {
-        stream.setCompleter(load(key));
+        stream.setCompleter(load(key, _decoderCallback));
+      }
+      if (key.disableMemoryCache) {
+        stream.setCompleter(load(key, _decoderCallback));
       } else {
         final ImageStreamCompleter completer = PaintingBinding
             .instance.imageCache
-            .putIfAbsent(key, () => load(key));
+            .putIfAbsent(key, () => load(key, _decoderCallback));
         if (completer != null) stream.setCompleter(completer);
       }
     });
@@ -144,7 +147,7 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
   }
 
   @override
-  ImageStreamCompleter load(AdvancedNetworkImage key) {
+  ImageStreamCompleter load(AdvancedNetworkImage key, DecoderCallback callback)  {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,
@@ -153,6 +156,15 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
         yield DiagnosticsProperty<AdvancedNetworkImage>('Image key', key);
       },
     );
+  }
+
+  Future<ui.Codec> _decoderCallback(Uint8List bytes) {
+    // We're not actually using this, but Flutter requires this as a callback.
+    // Since we're loading the image asynchronously and the `load` method can't
+    // be asynchronous, we will pass _loadAsync directly to the codec property
+    // instad of using the callback.
+
+    return PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
   Future<ui.Codec> _loadAsync(AdvancedNetworkImage key) async {
