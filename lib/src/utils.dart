@@ -295,16 +295,16 @@ typedef Future<String> UrlResolver();
 typedef void LoadingProgress(double progress, List<int> data);
 
 /// Fetch the image from network.
-Future<Uint8List> loadFromRemote(
+Future<Uint8List?> loadFromRemote(
   String url,
-  Map<String, String> header,
+  Map<String, String>? header,
   int retryLimit,
   Duration retryDuration,
   double retryDurationFactor,
   Duration timeoutDuration,
-  LoadingProgress loadingProgress,
-  UrlResolver getRealUrl, {
-  List<int> skipRetryStatusCode,
+  LoadingProgress? loadingProgress,
+  UrlResolver? getRealUrl, {
+  List<int>? skipRetryStatusCode,
   bool printError = false,
 }) async {
   assert(url != null);
@@ -314,11 +314,11 @@ Future<Uint8List> loadFromRemote(
   skipRetryStatusCode ??= [];
 
   /// Retry mechanism.
-  Future<http.Response> run<T>(Future f(), int retryLimit,
+  Future<http.Response?> run<T>(Future f(), int retryLimit,
       Duration retryDuration, double retryDurationFactor) async {
     for (int t in List.generate(retryLimit + 1, (int t) => t + 1)) {
       try {
-        http.Response res = await f();
+        http.Response? res = await f();
         if (res != null) {
           if ([HttpStatus.ok, HttpStatus.partialContent]
                   .contains(res.statusCode) &&
@@ -328,7 +328,7 @@ Future<Uint8List> loadFromRemote(
             if (printError)
               debugPrint(
                   'Failed to load, response status code: ${res.statusCode.toString()}.');
-            if (skipRetryStatusCode.contains(res.statusCode)) return null;
+            if (skipRetryStatusCode!.contains(res.statusCode)) return null;
           }
         }
       } catch (e) {
@@ -344,7 +344,7 @@ Future<Uint8List> loadFromRemote(
   List<int> buffer = [];
   bool acceptRangesHeader = false;
 
-  http.Response _response;
+  http.Response? _response;
   _response = await run(() async {
     String _url = url;
     if (getRealUrl != null) _url = (await getRealUrl()) ?? url;
@@ -403,15 +403,15 @@ bool get isInDebugMode {
 }
 
 class DoubleTween extends Tween<double> {
-  DoubleTween({double begin, double end}) : super(begin: begin, end: end);
+  DoubleTween({double? begin, double? end}) : super(begin: begin, end: end);
 
   @override
-  double lerp(double t) => (begin + (end - begin) * t);
+  double lerp(double t) => begin != null && end != null ? (begin! + (end! - begin!) * t) : 0;
 }
 
 class OffsetTween extends Tween<Offset> {
-  OffsetTween({Offset begin, Offset end}) : super(begin: begin, end: end);
+  OffsetTween({Offset? begin, Offset? end}) : super(begin: begin, end: end);
 
   @override
-  Offset lerp(double t) => (begin + (end - begin) * t);
+  Offset lerp(double t) => begin != null && end != null ? (begin! + (end! - begin!) * t) : Offset(0, 0);
 }

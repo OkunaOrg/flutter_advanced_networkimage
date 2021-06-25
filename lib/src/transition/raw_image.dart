@@ -15,7 +15,7 @@ class MyRawImage extends LeafRenderObjectWidget {
   /// The [scale], [alignment], [repeat], [matchTextDirection] and [filterQuality] arguments must
   /// not be null.
   const MyRawImage({
-    Key key,
+    Key? key,
     this.image,
     this.width,
     this.height,
@@ -37,19 +37,19 @@ class MyRawImage extends LeafRenderObjectWidget {
         super(key: key);
 
   /// The image to display.
-  final ui.Image image;
+  final ui.Image? image;
 
   /// If non-null, require the image to have this width.
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio.
-  final double width;
+  final double? width;
 
   /// If non-null, require the image to have this height.
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio.
-  final double height;
+  final double? height;
 
   /// Specifies the image's scale.
   ///
@@ -57,7 +57,7 @@ class MyRawImage extends LeafRenderObjectWidget {
   final double scale;
 
   /// If non-null, this color is blended with each image pixel using [colorBlendMode].
-  final Color color;
+  final Color? color;
 
   /// Used to set the filterQuality of the image
   /// Use the "low" quality setting to scale the image, which corresponds to
@@ -73,13 +73,13 @@ class MyRawImage extends LeafRenderObjectWidget {
   /// See also:
   ///
   ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
-  final BlendMode colorBlendMode;
+  final BlendMode? colorBlendMode;
 
   /// How to inscribe the image into the space allocated during layout.
   ///
   /// The default varies based on the other fields. See the discussion at
   /// [paintImage].
-  final BoxFit fit;
+  final BoxFit? fit;
 
   /// How to align the image within its bounds.
   ///
@@ -118,7 +118,7 @@ class MyRawImage extends LeafRenderObjectWidget {
   /// region of the image above and below the center slice will be stretched
   /// only horizontally and the region of the image to the left and right of
   /// the center slice will be stretched only vertically.
-  final Rect centerSlice;
+  final Rect? centerSlice;
 
   /// Whether to paint the image in the direction of the [TextDirection].
   ///
@@ -148,7 +148,7 @@ class MyRawImage extends LeafRenderObjectWidget {
   ///  * [Paint.invertColors], for the dart:ui implementation.
   final bool invertColors;
 
-  final ui.ImageFilter imageFilter;
+  final ui.ImageFilter? imageFilter;
 
   @override
   MyRenderImage createRenderObject(BuildContext context) {
@@ -238,21 +238,21 @@ class MyRenderImage extends RenderBox {
   /// must not be null. The [textDirection] argument must not be null if
   /// [alignment] will need resolving or if [matchTextDirection] is true.
   MyRenderImage({
-    ui.Image image,
-    double width,
-    double height,
+    ui.Image? image,
+    double? width,
+    double? height,
     double scale = 1.0,
-    Color color,
-    BlendMode colorBlendMode,
-    BoxFit fit,
+    Color? color,
+    BlendMode? colorBlendMode,
+    BoxFit? fit,
     AlignmentGeometry alignment = Alignment.center,
     ImageRepeat repeat = ImageRepeat.noRepeat,
-    Rect centerSlice,
+    Rect? centerSlice,
     bool matchTextDirection = false,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     bool invertColors = false,
     FilterQuality filterQuality = FilterQuality.low,
-    ui.ImageFilter imageFilter,
+    ui.ImageFilter? imageFilter,
   })  : assert(scale != null),
         assert(repeat != null),
         assert(alignment != null),
@@ -276,8 +276,8 @@ class MyRenderImage extends RenderBox {
     _updateColorFilter();
   }
 
-  Alignment _resolvedAlignment;
-  bool _flipHorizontally;
+  Alignment? _resolvedAlignment;
+  bool? _flipHorizontally;
 
   void _resolve() {
     if (_resolvedAlignment != null) return;
@@ -293,9 +293,9 @@ class MyRenderImage extends RenderBox {
   }
 
   /// The image to display.
-  ui.Image get image => _image;
-  ui.Image _image;
-  set image(ui.Image value) {
+  ui.Image? get image => _image;
+  ui.Image? _image;
+  set image(ui.Image? value) {
     if (value == _image) return;
     _image = value;
     markNeedsPaint();
@@ -306,9 +306,9 @@ class MyRenderImage extends RenderBox {
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio.
-  double get width => _width;
-  double _width;
-  set width(double value) {
+  double? get width => _width;
+  double? _width;
+  set width(double? value) {
     if (value == _width) return;
     _width = value;
     markNeedsLayout();
@@ -318,9 +318,9 @@ class MyRenderImage extends RenderBox {
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio.
-  double get height => _height;
-  double _height;
-  set height(double value) {
+  double? get height => _height;
+  double? _height;
+  set height(double? value) {
     if (value == _height) return;
     _height = value;
     markNeedsLayout();
@@ -338,20 +338,20 @@ class MyRenderImage extends RenderBox {
     markNeedsLayout();
   }
 
-  ColorFilter _colorFilter;
+  ColorFilter? _colorFilter;
 
   void _updateColorFilter() {
     if (_color == null)
       _colorFilter = null;
     else
       _colorFilter =
-          ColorFilter.mode(_color, _colorBlendMode ?? BlendMode.srcIn);
+          ColorFilter.mode(_color!, _colorBlendMode ?? BlendMode.srcIn);
   }
 
   /// If non-null, this color is blended with each image pixel using [colorBlendMode].
-  Color get color => _color;
-  Color _color;
-  set color(Color value) {
+  Color? get color => _color;
+  Color? _color;
+  set color(Color? value) {
     if (value == _color) return;
     _color = value;
     _updateColorFilter();
@@ -379,9 +379,9 @@ class MyRenderImage extends RenderBox {
   /// See also:
   ///
   ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
-  BlendMode get colorBlendMode => _colorBlendMode;
-  BlendMode _colorBlendMode;
-  set colorBlendMode(BlendMode value) {
+  BlendMode? get colorBlendMode => _colorBlendMode;
+  BlendMode? _colorBlendMode;
+  set colorBlendMode(BlendMode? value) {
     if (value == _colorBlendMode) return;
     _colorBlendMode = value;
     _updateColorFilter();
@@ -392,9 +392,9 @@ class MyRenderImage extends RenderBox {
   ///
   /// The default varies based on the other fields. See the discussion at
   /// [paintImage].
-  BoxFit get fit => _fit;
-  BoxFit _fit;
-  set fit(BoxFit value) {
+  BoxFit? get fit => _fit;
+  BoxFit? _fit;
+  set fit(BoxFit? value) {
     if (value == _fit) return;
     _fit = value;
     markNeedsPaint();
@@ -430,9 +430,9 @@ class MyRenderImage extends RenderBox {
   /// region of the image above and below the center slice will be stretched
   /// only horizontally and the region of the image to the left and right of
   /// the center slice will be stretched only vertically.
-  Rect get centerSlice => _centerSlice;
-  Rect _centerSlice;
-  set centerSlice(Rect value) {
+  Rect? get centerSlice => _centerSlice;
+  Rect? _centerSlice;
+  set centerSlice(Rect? value) {
     if (value == _centerSlice) return;
     _centerSlice = value;
     markNeedsPaint();
@@ -479,17 +479,17 @@ class MyRenderImage extends RenderBox {
   /// This may be changed to null, but only after the [alignment] and
   /// [matchTextDirection] properties have been changed to values that do not
   /// depend on the direction.
-  TextDirection get textDirection => _textDirection;
-  TextDirection _textDirection;
-  set textDirection(TextDirection value) {
+  TextDirection? get textDirection => _textDirection;
+  TextDirection? _textDirection;
+  set textDirection(TextDirection? value) {
     if (_textDirection == value) return;
     _textDirection = value;
     _markNeedResolution();
   }
 
-  ui.ImageFilter get imageFilter => _imageFilter;
-  ui.ImageFilter _imageFilter;
-  set imageFilter(ui.ImageFilter value) {
+  ui.ImageFilter? get imageFilter => _imageFilter;
+  ui.ImageFilter? _imageFilter;
+  set imageFilter(ui.ImageFilter? value) {
     if (_imageFilter == value) return;
     _imageFilter = value;
     _markNeedResolution();
@@ -513,8 +513,8 @@ class MyRenderImage extends RenderBox {
     if (_image == null) return constraints.smallest;
 
     return constraints.constrainSizeAndAttemptToPreserveAspectRatio(Size(
-      _image.width.toDouble() / _scale,
-      _image.height.toDouble() / _scale,
+      _image!.width.toDouble() / _scale,
+      _image!.height.toDouble() / _scale,
     ));
   }
 
@@ -565,14 +565,14 @@ class MyRenderImage extends RenderBox {
     myPaintImage(
       canvas: context.canvas,
       rect: offset & size,
-      image: _image,
+      image: _image!,
       scale: _scale,
       colorFilter: _colorFilter,
       fit: _fit,
-      alignment: _resolvedAlignment,
+      alignment: _resolvedAlignment ?? Alignment.center,
       centerSlice: _centerSlice,
       repeat: _repeat,
-      flipHorizontally: _flipHorizontally,
+      flipHorizontally: _flipHorizontally ?? false,
       invertColors: invertColors,
       filterQuality: _filterQuality,
       imageFilter: imageFilter,
@@ -677,19 +677,19 @@ class MyRenderImage extends RenderBox {
 ///  * [DecorationImage], which holds a configuration for calling this function.
 ///  * [BoxDecoration], which uses this function to paint a [DecorationImage].
 void myPaintImage({
-  @required Canvas canvas,
-  @required Rect rect,
-  @required ui.Image image,
+  required Canvas canvas,
+  required Rect rect,
+  required ui.Image image,
   double scale = 1.0,
-  ColorFilter colorFilter,
-  BoxFit fit,
+  ColorFilter? colorFilter,
+  BoxFit? fit,
   Alignment alignment = Alignment.center,
-  Rect centerSlice,
+  Rect? centerSlice,
   ImageRepeat repeat = ImageRepeat.noRepeat,
   bool flipHorizontally = false,
   bool invertColors = false,
   FilterQuality filterQuality = FilterQuality.low,
-  ui.ImageFilter imageFilter,
+  ui.ImageFilter? imageFilter,
 }) {
   assert(canvas != null);
   assert(image != null);
@@ -699,14 +699,14 @@ void myPaintImage({
   if (rect.isEmpty) return;
   Size outputSize = rect.size;
   Size inputSize = Size(image.width.toDouble(), image.height.toDouble());
-  Offset sliceBorder;
+  Offset? sliceBorder;
   if (centerSlice != null) {
     sliceBorder = Offset(
       centerSlice.left + inputSize.width - centerSlice.right,
       centerSlice.top + inputSize.height - centerSlice.bottom,
     );
-    outputSize -= sliceBorder;
-    inputSize -= sliceBorder;
+    outputSize = Size(outputSize.width - sliceBorder.dx, outputSize.height - sliceBorder.dy);
+    inputSize = Size(inputSize.width - sliceBorder.dx, inputSize.height - sliceBorder.dy);
   }
   fit ??= centerSlice == null ? BoxFit.scaleDown : BoxFit.fill;
   assert(centerSlice == null || (fit != BoxFit.none && fit != BoxFit.cover));
@@ -714,9 +714,10 @@ void myPaintImage({
       applyBoxFit(fit, inputSize / scale, outputSize);
   final Size sourceSize = fittedSizes.source * scale;
   Size destinationSize = fittedSizes.destination;
-  if (centerSlice != null) {
-    outputSize += sliceBorder;
-    destinationSize += sliceBorder;
+  if (centerSlice != null && sliceBorder != null) {
+    outputSize = Size(outputSize.width + sliceBorder.dx, outputSize.height + sliceBorder.dy);
+    destinationSize = Size(destinationSize.width + sliceBorder.dx, destinationSize.height + sliceBorder.dy);
+
     // We don't have the ability to draw a subset of the image at the same time
     // as we apply a nine-patch stretch.
     assert(sourceSize == inputSize,
