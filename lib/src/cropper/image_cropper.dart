@@ -9,11 +9,11 @@ import 'package:flutter_advanced_networkimage/src/utils.dart';
 
 class ImageCropper extends StatefulWidget {
   ImageCropper({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.minScale: 1.0,
     this.maxScale: 3.0,
-    @required this.onCropperChanged,
+    required this.onCropperChanged,
   });
 
   final Widget child;
@@ -44,8 +44,8 @@ class _ImageCropperState extends State<ImageCropper> {
   Curve _curve = Curves.easeOut;
 
   void _onScaleStart(ScaleStartDetails details) {
-    if (_childSize == Size.zero) {
-      final RenderBox renderbox = _key.currentContext.findRenderObject();
+    if (_childSize == Size.zero && _key.currentContext != null) {
+      final RenderBox renderbox = _key.currentContext!.findRenderObject() as RenderBox;
       _childSize = renderbox.size;
     }
     setState(() {
@@ -142,12 +142,12 @@ class _ImageCropperState extends State<ImageCropper> {
 
 class _AnimatedCropper extends ImplicitlyAnimatedWidget {
   const _AnimatedCropper({
-    Duration duration,
+    required Duration duration,
     Curve curve = Curves.linear,
-    @required this.zoom,
-    @required this.panOffset,
-    @required this.rotation,
-    @required this.child,
+    required this.zoom,
+    required this.panOffset,
+    required this.rotation,
+    required this.child,
   }) : super(duration: duration, curve: curve);
 
   final double zoom;
@@ -161,33 +161,37 @@ class _AnimatedCropper extends ImplicitlyAnimatedWidget {
 }
 
 class _AnimatedCropperState extends AnimatedWidgetBaseState<_AnimatedCropper> {
-  DoubleTween _zoom;
-  OffsetTween _panOffset;
-  OffsetTween _zoomOriginOffset;
-  DoubleTween _rotation;
+  DoubleTween? _zoom;
+  OffsetTween? _panOffset;
+  OffsetTween? _zoomOriginOffset;
+  DoubleTween? _rotation;
 
   @override
   void forEachTween(visitor) {
     _zoom = visitor(
-        _zoom, widget.zoom, (dynamic value) => DoubleTween(begin: value));
+        _zoom, widget.zoom, (dynamic value) => DoubleTween(begin: value)) as DoubleTween;
     _panOffset = visitor(_panOffset, widget.panOffset,
-        (dynamic value) => OffsetTween(begin: value));
+        (dynamic value) => OffsetTween(begin: value)) as OffsetTween;
     _rotation = visitor(_rotation, widget.rotation,
-        (dynamic value) => DoubleTween(begin: value));
+        (dynamic value) => DoubleTween(begin: value)) as DoubleTween;
   }
 
   @override
   Widget build(BuildContext context) {
     return Transform(
       alignment: Alignment.center,
-      origin: Offset(-_panOffset.evaluate(animation).dx,
-          -_panOffset.evaluate(animation).dy),
-      transform: Matrix4.identity()
-        ..translate(_panOffset.evaluate(animation).dx,
-            _panOffset.evaluate(animation).dy)
-        ..scale(_zoom.evaluate(animation), _zoom.evaluate(animation)),
+      origin: _panOffset == null
+        ? Offset(0, 0)
+        : Offset(-_panOffset!.evaluate(animation).dx,
+          -_panOffset!.evaluate(animation).dy),
+      transform: _panOffset == null || _zoom == null
+        ? Matrix4.identity()
+        : Matrix4.identity()
+          ..translate(_panOffset!.evaluate(animation).dx,
+              _panOffset!.evaluate(animation).dy)
+          ..scale(_zoom!.evaluate(animation), _zoom!.evaluate(animation)),
       child: Transform.rotate(
-        angle: _rotation.evaluate(animation),
+        angle: _rotation?.evaluate(animation) ?? 0,
         child: widget.child,
       ),
     );

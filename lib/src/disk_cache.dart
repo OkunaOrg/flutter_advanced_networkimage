@@ -72,14 +72,14 @@ class DiskCache {
 
   int _currentOps = 0;
 
-  int get currentEntries => _metadata != null ? _metadata.keys.length : 0;
+  int get currentEntries => _metadata != null ? _metadata!.keys.length : 0;
   int get _currentSizeBytes {
     int size = 0;
-    _metadata.values.forEach((item) => size += item['size']);
+    _metadata?.values.forEach((item) => size += item['size'] as int);
     return size;
   }
 
-  Map<String, dynamic> _metadata;
+  Map<String, dynamic>? _metadata;
 
   static const String _metadataFilename = 'imagecache_metadata.json';
 
@@ -112,7 +112,7 @@ class DiskCache {
   /// Clean up the bad cache files in metadata.
   Future<void> keepCacheHealth() async {
     if (_metadata == null) await _initMetaData();
-    _metadata.removeWhere((k, v) {
+    _metadata!.removeWhere((k, v) {
       if (!File(v['path']).existsSync()) return true;
       if (DateTime.fromMillisecondsSinceEpoch(v['createdTime'] + v['maxAge'])
           .isBefore(DateTime.now())) {
@@ -131,39 +131,38 @@ class DiskCache {
   }
 
   /// Load the cache image from [DiskCache], you can use `force` to skip max age check.
-  Future<Uint8List> load(String uid, {CacheRule rule, bool force}) async {
+  Future<Uint8List?> load(String uid, {CacheRule? rule, bool force = false}) async {
     if (_metadata == null) await _initMetaData();
-    force ??= false;
 
     try {
-      if (_metadata.containsKey(uid)) {
-        if (!File(_metadata[uid]['path']).existsSync()) {
-          _metadata.remove(uid);
+      if (_metadata!.containsKey(uid)) {
+        if (!File(_metadata![uid]['path']).existsSync()) {
+          _metadata!.remove(uid);
           await _commitMetaData();
           return null;
         }
         if (DateTime.fromMillisecondsSinceEpoch(
-              _metadata[uid]['createdTime'] +
+              _metadata![uid]['createdTime'] +
                   (rule != null
                       ? rule.maxAge.inMilliseconds
-                      : _metadata[uid]['maxAge']),
+                      : _metadata![uid]['maxAge']),
             ).isBefore(DateTime.now()) &&
             !force) {
-          await File(_metadata[uid]['path']).delete();
-          _metadata.remove(uid);
+          await File(_metadata![uid]['path']).delete();
+          _metadata!.remove(uid);
           await _commitMetaData();
           return null;
         }
-        Uint8List data = await File(_metadata[uid]['path']).readAsBytes();
-        if (_metadata[uid]['crc32'] != null &&
-            _metadata[uid]['crc32'] != crc32(data)) {
-          await File(_metadata[uid]['path']).delete();
-          _metadata.remove(uid);
+        Uint8List data = await File(_metadata![uid]['path']).readAsBytes();
+        if (_metadata![uid]['crc32'] != null &&
+            _metadata![uid]['crc32'] != crc32(data)) {
+          await File(_metadata![uid]['path']).delete();
+          _metadata!.remove(uid);
           await _commitMetaData();
           return null;
         }
         if (currentEntries >= maxEntries || _currentSizeBytes >= maxSizeBytes) {
-          _metadata[uid] = _metadata.remove(uid);
+          _metadata![uid] = _metadata!.remove(uid);
           await _commitMetaData();
         }
         return data;
@@ -197,7 +196,7 @@ class DiskCache {
         'size': data.lengthInBytes,
         'maxAge': rule.maxAge.inMilliseconds,
       };
-      _metadata[uid] = metadata;
+      _metadata![uid] = metadata;
       await _checkCacheSize();
       await _commitMetaData(true);
 
@@ -209,11 +208,13 @@ class DiskCache {
   }
 
   Future<void> _checkCacheSize() async {
+    if (_metadata == null) await _initMetaData();
+
     while (currentEntries > maxEntries || _currentSizeBytes > maxSizeBytes) {
-      String key = _metadata.keys.first;
-      if (File(_metadata[key]['path']).existsSync())
-        await File(_metadata[key]['path']).delete();
-      _metadata.remove(key);
+      String key = _metadata!.keys.first;
+      if (File(_metadata![key]['path']).existsSync())
+        await File(_metadata![key]['path']).delete();
+      _metadata!.remove(key);
     }
   }
 
@@ -228,10 +229,10 @@ class DiskCache {
           ).path,
           uid));
 
-      if (_metadata.containsKey(uid) &&
-          File(_metadata[uid]['path']).existsSync()) {
-        await File(_metadata[uid]['path']).delete();
-        _metadata.remove(uid);
+      if (_metadata!.containsKey(uid) &&
+          File(_metadata![uid]['path']).existsSync()) {
+        await File(_metadata![uid]['path']).delete();
+        _metadata!.remove(uid);
         await _commitMetaData();
       } else if (normalCacheFile.existsSync()) {
         await normalCacheFile.delete();
@@ -264,7 +265,7 @@ class DiskCache {
   }
 
   /// Get cache folder size.
-  Future<int> cacheSize() async {
+  Future<int?> cacheSize() async {
     int size = 0;
     try {
       Directory tempDir =
